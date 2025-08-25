@@ -111,47 +111,54 @@ Mais syscalls significam maior overhead e pior desempenho, e aí menos syscalls 
 ## 4️⃣ Exercício 4 - Cópia de Arquivo
 
 ### 📈 Resultados:
-- Bytes copiados: _____
-- Operações: _____
-- Tempo: _____ segundos
-- Throughput: _____ KB/s
+- Bytes copiados: 1364
+- Operações: 6
+- Tempo: 0.000206 segundos
+- Throughput: 6466.17 KB/s
 
 ### ✅ Verificação:
 ```bash
 diff dados/origem.txt dados/destino.txt
 ```
-Resultado: [ ] Idênticos [ ] Diferentes
+Resultado: [X] Idênticos [ ] Diferentes
 
 ### 🔍 Análise
 
 **1. Por que devemos verificar que bytes_escritos == bytes_lidos?**
 
 ```
-[Sua análise aqui]
+Porque o `write()` pode escrever menos bytes do que foi pedido. Se não ver isso, pode ter o risco de perder dados nessa transferência.
+
 ```
 
 **2. Que flags são essenciais no open() do destino?**
 
 ```
-[Sua análise aqui]
+- `O_WRONLY`: abre o arquivo para escrita.
+- `O_CREAT`: cria o arquivo se ele não existir.
+- `O_TRUNC`: trunca (zera) o conteúdo do arquivo se ele já existir, garantindo que não reste lixo de versões anteriores.
+
 ```
 
 **3. O número de reads e writes é igual? Por quê?**
 
 ```
-[Sua análise aqui]
+Cada read() bem-sucedido é seguido por um write(). Porém, em casos especiais (como interrupções ou escrita parcial), pode ser necessário fazer múltiplos write() para um único read().
+
 ```
 
 **4. Como você saberia se o disco ficou cheio?**
 
 ```
-[Sua análise aqui]
+A syscall write() retornaria um valor menor que o esperado ou -1, e `errno` seria definido com o erro `ENOSPC`.
+
 ```
 
 **5. O que acontece se esquecer de fechar os arquivos?**
 
 ```
-[Sua análise aqui]
+Recursos do sistema podem não ser liberados imediatamente, podendo causar vazamentos de recursos. Pode haver perda de dados que estavam no buffer, pois o kernel pode postergar a escrita física até o `close()` ser chamado. Em sistemas maiores, isso pode esgotar o limite de descritores por processo, impedindo a abertura de novos arquivos.
+
 ```
 
 ---
@@ -163,19 +170,21 @@ Resultado: [ ] Idênticos [ ] Diferentes
 **1. Como as syscalls demonstram a transição usuário → kernel?**
 
 ```
-[Sua análise aqui]
+Syscalls como read(), write(), open(), close() são interfaces fornecidas pela biblioteca do sistema para interagir com o kernel. Quando chamadas, há uma transição de "modo usuário" para "modo kernel", onde o sistema operacional tem permissões totais para acessar o hardware (como disco, memória etc.). Isso é essencial para a segurança e estabilidade do sistema.
+
 ```
 
 **2. Qual é o seu entendimento sobre a importância dos file descriptors?**
 
 ```
-[Sua análise aqui]
+File descriptors são inteiros que representam arquivos abertos no contexto de um processo. Eles atuam como "ponteiros" para tabelas internas do kernel que contêm metadados e estados dos arquivos. Tudo que envolve entrada e saída é feito via descriptors, o que torna o sistema unificado e flexível.
 ```
 
 **3. Discorra sobre a relação entre o tamanho do buffer e performance:**
 
 ```
-[Sua análise aqui]
+Buffers maiores geralmente resultam em menos chamadas read() e write(), reduzindo o overhead de transição usuário-kernel, e aumentando a performance. Mas, buffers muito grandes consomem mais memória. 
+
 ```
 
 ### ⚡ Comparação de Performance
@@ -186,12 +195,13 @@ time ./ex4_copia
 time cp dados/origem.txt dados/destino_cp.txt
 ```
 
-**Qual foi mais rápido?** _____
+**Qual foi mais rápido?** ex4_copia
 
 **Por que você acha que foi mais rápido?**
 
 ```
-[Sua análise aqui]
+O comando `cp` é altamente otimizado e utiliza técnicas como buffers grandes, chamadas assíncronas, mapeamento de memória (mmap), ou até operações específicas do kernel (como `sendfile()`) para copiar arquivos com eficiência máxima. Nosso programa usa um buffer pequeno (256 bytes) e operações básicas, o que torna a cópia mais lenta.
+
 ```
 
 ---
