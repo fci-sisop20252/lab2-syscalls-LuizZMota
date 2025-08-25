@@ -13,19 +13,22 @@ strace -e write ./ex1b_write
 ### 🔍 Análise
 
 **1. Quantas syscalls write() cada programa gerou?**
-- ex1a_printf: _____ syscalls
-- ex1b_write: _____ syscalls
+- ex1a_printf: 10 syscalls
+- ex1b_write: 7 syscalls
 
 **2. Por que há diferença entre os dois métodos? Consulte o docs/printf_vs_write.md**
 
 ```
-[Sua análise aqui]
+Porque printf usa buffering da libc e só chama write() quando o buffer enche ou ocorre flush, 
+podendo gerar mais syscalls. Já write chama o kernel diretamente a cada chamada, sem buffer.
+
 ```
 
 **3. Qual método é mais previsível? Por quê você acha isso?**
 
 ```
-[Sua análise aqui]
+O write é mais previsível, pois cada chamada gera exatamente uma syscall, sem depender de buffers internos.
+
 ```
 
 ---

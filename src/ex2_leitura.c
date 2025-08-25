@@ -27,13 +27,9 @@ int main() {
      * TODO 1: Abrir o arquivo 'dados/teste1.txt' para leitura
      * Use open() com O_RDONLY
      */
-    fd = /* COMPLETE AQUI */;
+    int fd = open("dados/teste1.txt", O_RDONLY);
     
-    /*
-     * TODO 2: Verificar se a abertura foi bem-sucedida
-     * Se fd < 0, houve erro
-     */
-    if (/* COMPLETE AQUI */) {
+    if (fd<0) {
         perror("Erro ao abrir arquivo");
         return 1;
     }
