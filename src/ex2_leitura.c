@@ -27,7 +27,7 @@ int main() {
      * TODO 1: Abrir o arquivo 'dados/teste1.txt' para leitura
      * Use open() com O_RDONLY
      */
-    int fd = open("dados/teste1.txt", O_RDONLY);
+    fd = open("dados/teste1.txt", O_RDONLY);
     
     if (fd<0) {
         perror("Erro ao abrir arquivo");
@@ -36,16 +36,8 @@ int main() {
     
     printf("Arquivo aberto! File descriptor: %d\n", fd);
     
-    /*
-     * TODO 3: Ler dados do arquivo
-     * Use read() para ler até (BUFFER_SIZE - 1) bytes
-     */
-    bytes_lidos = /* COMPLETE AQUI */;
-    
-    /*
-     * TODO 4: Verificar se a leitura foi bem-sucedida
-     */
-    if (/* COMPLETE AQUI */) {
+    bytes_lidos = read(fd, buffer, sizeof(buffer));
+    if (bytes_lidos<0) {
         perror("Erro na leitura");
         close(fd);
         return 1;
@@ -56,7 +48,7 @@ int main() {
      * Para tratar o buffer como string
      */
     /* COMPLETE AQUI */;
-    
+    ssize_t write(int fd, const void *buf, size_t count);
     // Exibir resultados
     printf("Bytes lidos: %ld\n", bytes_lidos);
     printf("Conteúdo:\n%s\n", buffer);
@@ -65,7 +57,8 @@ int main() {
      * TODO 6: Fechar o arquivo
      * Use close() para liberar o file descriptor
      */
-    if (/* COMPLETE AQUI */) {
+    int close(int fd);
+    if (close(fd)<0) {
         perror("Erro ao fechar arquivo");
         return 1;
     }
